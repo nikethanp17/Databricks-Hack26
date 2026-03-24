@@ -4,282 +4,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome - Kirana Supply Optimizer</title>
+    <title>Welcome — Kirana Supply Optimizer</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
         }
 
-        body::before {
-            content: '';
+        /* Animated gradient overlay */
+        .hero-bg {
             position: fixed;
             inset: 0;
-            background:
-                linear-gradient(rgba(255, 100, 0, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 100, 0, 0.04) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
+            background: linear-gradient(270deg,
+                    rgba(255, 60, 0, 0.08),
+                    rgba(255, 100, 0, 0.04),
+                    rgba(0, 0, 0, 0),
+                    rgba(255, 80, 0, 0.06));
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease infinite;
             z-index: 0;
         }
 
-        /* Radial neon glow centre */
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(ellipse at center, rgba(255, 80, 0, 0.12) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .landing-container {
-            text-align: center;
-            color: white;
-            max-width: 800px;
-            padding: 40px;
+        .hero {
             position: relative;
             z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 32px;
         }
 
-        .icon-group {
-            font-size: 80px;
-            margin-bottom: 40px;
+        .hero-icons {
+            font-size: 4.5rem;
+            margin-bottom: 36px;
             opacity: 0;
-            animation: fadeInUp 1s ease-out 0.3s forwards;
-            filter: drop-shadow(0 0 16px #ff6400);
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+            filter: drop-shadow(0 0 18px #ff6400);
         }
 
-        .icon {
+        .hero-icons span {
             display: inline-block;
-            margin: 0 15px;
-            animation: float 3s ease-in-out infinite;
+            margin: 0 14px;
         }
 
-        .icon:nth-child(2) {
-            animation-delay: 0.5s;
+        .hero-icons span:nth-child(1) {
+            animation: floatY 3.2s ease-in-out infinite;
         }
 
-        .icon:nth-child(3) {
-            animation-delay: 1s;
+        .hero-icons span:nth-child(2) {
+            animation: floatY 3.2s ease-in-out 0.6s infinite;
         }
 
-        h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
+        .hero-icons span:nth-child(3) {
+            animation: floatY 3.2s ease-in-out 1.2s infinite;
+        }
+
+        .hero h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            margin-bottom: 16px;
             opacity: 0;
-            animation: fadeInUp 1s ease-out 0.5s forwards;
-            color: #ff6400;
-            text-shadow: 0 0 30px rgba(255, 100, 0, 0.7), 0 0 60px rgba(255, 60, 0, 0.4);
+            animation: fadeInUp 0.8s ease-out 0.5s forwards;
+            max-width: 700px;
         }
 
-        .typewriter {
-            font-size: 20px;
-            margin-bottom: 10px;
+        .typewriter-wrap {
+            font-size: 1.15rem;
+            color: var(--neon-dim);
+            height: 28px;
+            margin-bottom: 12px;
             opacity: 0;
-            animation: fadeInUp 1s ease-out 1s forwards;
-            height: 30px;
-            color: #ff8c42;
+            animation: fadeIn 0.6s ease-out 1s forwards;
         }
 
-        .subtitle {
-            font-size: 18px;
-            margin-bottom: 50px;
+        #typewriterText::after {
+            content: '|';
+            animation: blink 0.8s step-end infinite;
+            color: var(--neon);
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 52px;
             opacity: 0;
-            animation: fadeInUp 1s ease-out 1.5s forwards;
+            animation: fadeInUp 0.8s ease-out 1.5s forwards;
             font-weight: 300;
-            color: #888;
         }
 
         .features {
             display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 50px;
+            gap: 20px;
             flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 52px;
             opacity: 0;
-            animation: fadeInUp 1s ease-out 2s forwards;
+            animation: fadeInUp 0.8s ease-out 1.9s forwards;
         }
 
-        .feature {
+        .feature-chip {
             background: rgba(255, 100, 0, 0.08);
-            border: 1px solid rgba(255, 100, 0, 0.25);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            min-width: 150px;
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 10px 22px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--neon-dim);
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: box-shadow 0.3s, transform 0.3s;
         }
 
-        .feature:hover {
-            box-shadow: 0 0 20px rgba(255, 100, 0, 0.35);
-            transform: translateY(-4px);
+        .feature-chip:hover {
+            box-shadow: 0 0 16px rgba(255, 100, 0, 0.3);
+            transform: translateY(-3px);
         }
 
-        .feature-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 0 8px #ff6400);
-        }
-
-        .feature-text {
-            font-size: 14px;
-            font-weight: 500;
-            color: #ff8c42;
-        }
-
-        .cta-button {
-            background: linear-gradient(135deg, #ff6400 0%, #ff3c00 100%);
-            color: #000;
-            border: none;
-            padding: 18px 50px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 100, 0, 0.5);
-            transition: all 0.3s;
+        .cta-wrap {
             opacity: 0;
-            animation: fadeInUp 1s ease-out 2.5s forwards;
-            letter-spacing: 0.5px;
+            animation: fadeInUp 0.8s ease-out 2.3s forwards;
         }
 
-        .cta-button:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 0 50px rgba(255, 100, 0, 0.8);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-        }
-
-        @keyframes typing {
-            from {
-                width: 0;
-            }
-
-            to {
-                width: 100%;
-            }
-        }
-
-        .fade-out {
-            animation: fadeOut 0.8s ease-out forwards;
-        }
-
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-        }
-
-        .typing-text {
+        .badge {
             display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            animation: typing 3s steps(40) 1.5s forwards;
-            width: 0;
+            background: rgba(255, 100, 0, 0.12);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 3px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--neon-dim);
+            letter-spacing: 0.5px;
+            margin-bottom: 18px;
         }
     </style>
 </head>
 
-<body>
-    <div class="landing-container" id="landingContainer">
-        <div class="icon-group">
-            <span class="icon">🏪</span>
-            <span class="icon">📊</span>
-            <span class="icon">🤖</span>
+<body data-page="landing">
+    <div class="grid-bg"></div>
+    <div class="radial-glow"></div>
+    <div class="hero-bg"></div>
+
+    <section class="hero" id="hero">
+        <div class="hero-icons">
+            <span>🏪</span><span>📊</span><span>🤖</span>
         </div>
 
-        <h1>Hyper-Local Supply Chain Optimizer</h1>
+        <span class="badge">✨ Databricks Hackathon 2026</span>
 
-        <div class="typewriter">
-            <span class="typing-text" id="typingText"></span>
+        <h1 class="neon-text">Hyper-Local Supply Chain Optimizer</h1>
+
+        <div class="typewriter-wrap">
+            <span id="typewriterText"></span>
         </div>
 
-        <p class="subtitle">Transform your Kirana store with intelligent predictions</p>
+        <p class="hero-sub">Transform your Kirana store with intelligent AI predictions</p>
 
         <div class="features">
-            <div class="feature">
-                <div class="feature-icon">📈</div>
-                <div class="feature-text">Demand Forecasting</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">💡</div>
-                <div class="feature-text">Smart Restocking</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">⚡</div>
-                <div class="feature-text">Real-time Analytics</div>
-            </div>
+            <div class="feature-chip">📈 Demand Forecasting</div>
+            <div class="feature-chip">💡 Smart Restocking</div>
+            <div class="feature-chip">⚡ Real-time Analytics</div>
+            <div class="feature-chip">🧠 Explainable AI</div>
         </div>
 
-        <button class="cta-button" id="enterDashboard">Enter Dashboard →</button>
-    </div>
+        <div class="cta-wrap">
+            <button class="btn btn-primary btn-pill" id="enterDashboard">
+                Enter Dashboard &nbsp;→
+            </button>
+        </div>
+    </section>
 
-    <script>
-        // Check if logged in
-        if (localStorage.getItem('isLoggedIn') !== 'true') {
-            window.location.href = 'login.html';
-        }
-
-        // Typing animation
-        const text = "AI-driven demand prediction & smart restocking";
-        const typingElement = document.getElementById('typingText');
-        let index = 0;
-
-        function typeText() {
-            if (index < text.length) {
-                typingElement.textContent += text.charAt(index);
-                index++;
-                setTimeout(typeText, 50);
-            }
-        }
-
-        setTimeout(typeText, 1500);
-
-        // Enter dashboard button
-        document.getElementById('enterDashboard').addEventListener('click', function () {
-            const container = document.getElementById('landingContainer');
-            container.classList.add('fade-out');
-
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 800);
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
