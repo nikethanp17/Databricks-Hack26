@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirana Supply Optimizer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon: #ff6400;
+            --neon-2: #ff3c00;
+            --neon-dim: #ff8c42;
+            --bg: #080808;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+        }
+
+        /* ── Animated Gradient Background ─── */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: linear-gradient(135deg,
+                    #0d0000, #1a0500, #0d0000, #200800, #0d0000);
+            background-size: 400% 400%;
+            animation: gradShift 12s ease infinite;
+        }
+
+        @keyframes gradShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* ── Grid overlay ─── */
+        #bg-canvas::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(rgba(255, 100, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 100, 0, 0.05) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        /* ── Radial glow ─── */
+        .radial {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(255, 80, 0, 0.18) 0%, transparent 60%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ── Particle canvas ─── */
+        #particles {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ── Floating food items ─── */
+        .floater {
+            position: fixed;
+            z-index: 2;
+            pointer-events: none;
+            user-select: none;
+            will-change: transform;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+        }
+
+        @keyframes floatUp {
+            to {
+                transform: translateY(-120px) rotate(12deg);
+            }
+        }
+
+        @keyframes floatRight {
+            to {
+                transform: translateX(100px) translateY(-60px) rotate(-8deg);
+            }
+        }
+
+        @keyframes floatDiag {
+            to {
+                transform: translate(80px, -100px) rotate(15deg);
+            }
+        }
+
+        @keyframes floatWave {
+            to {
+                transform: translate(-70px, -80px) rotate(-12deg);
+            }
+        }
+
+        /* ── Center glass card ─── */
+        #hero {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 100, 0, 0.2);
+            border-radius: 24px;
+            padding: 56px 64px;
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            box-shadow:
+                0 0 60px rgba(255, 100, 0, 0.15),
+                0 0 120px rgba(255, 50, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            will-change: transform;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.88);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ── Badge ─── */
+        .badge {
+            display: inline-block;
+            background: rgba(255, 100, 0, 0.15);
+            border: 1px solid rgba(255, 100, 0, 0.35);
+            color: var(--neon-dim);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 50px;
+            margin-bottom: 28px;
+            animation: fadeIn 0.6s ease-out 0.5s both;
+        }
+
+        /* ── Title ─── */
+        .hero-title {
+            font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 8px;
+            min-height: 3.4em;
+        }
+
+        .hero-title .accent {
+            color: var(--neon);
+            text-shadow:
+                0 0 20px rgba(255, 100, 0, 0.7),
+                0 0 50px rgba(255, 60, 0, 0.4);
+        }
+
+        /* Cursor blink during typing */
+        #cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background: var(--neon);
+            border-radius: 2px;
+            margin-left: 3px;
+            vertical-align: middle;
+            animation: blink 0.7s step-end infinite;
+            box-shadow: 0 0 8px var(--neon);
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0
+            }
+        }
+
+        /* ── Subtitle ─── */
+        .hero-sub {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 300;
+            margin-bottom: 44px;
+            opacity: 0;
+            animation: fadeInUp 0.7s ease-out 1.8s forwards;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Stats row ─── */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 44px;
+            opacity: 0;
+            animation: fadeInUp 0.7s ease-out 2.2s forwards;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--neon);
+            text-shadow: 0 0 12px rgba(255, 100, 0, 0.4);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .stat-divider {
+            width: 1px;
+            background: rgba(255, 100, 0, 0.2);
+            align-self: stretch;
+        }
+
+        /* ── Enter button ─── */
+        .enter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 42px;
+            background: linear-gradient(135deg, var(--neon) 0%, var(--neon-2) 100%);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            box-shadow: 0 0 30px rgba(255, 100, 0, 0.45), 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            opacity: 0;
+            animation: fadeInUp 0.7s ease-out 2.6s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enter-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .enter-btn:hover::before {
+            opacity: 1;
+        }
+
+        .enter-btn:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 0 50px rgba(255, 100, 0, 0.65), 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .enter-btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-arrow {
+            display: inline-block;
+            transition: transform 0.25s;
+        }
+
+        .enter-btn:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        /* ── Loading bar at bottom ─── */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-2), var(--neon));
+            box-shadow: 0 0 12px var(--neon);
+            z-index: 20;
+            width: 0%;
+            transition: width 3s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        /* ── Page exit animation ─── */
+        .page-exit {
+            animation: exitAnim 0.6s ease-in forwards !important;
+        }
+
+        @keyframes exitAnim {
+            to {
+                opacity: 0;
+                transform: scale(1.06);
+                filter: blur(6px);
+            }
+        }
+
+        /* ── Keyframes ─── */
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Backgrounds -->
+    <div id="bg-canvas"></div>
+    <div class="radial"></div>
+    <canvas id="particles"></canvas>
+
+    <!-- Floating food items (injected by JS) -->
+    <div id="floaters"></div>
+
+    <!-- Hero glass card -->
+    <div id="hero">
+        <div class="glass-card" id="glassCard">
+
+            <div class="badge">✦ Databricks Hackathon 2026</div>
+
+            <h1 class="hero-title">
+                <span id="typeTarget"></span><span id="cursor"></span>
+            </h1>
+
+            <p class="hero-sub">Smart AI for Kirana Stores</p>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-num">89.7%</span>
+                    <span class="stat-label">Accuracy</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-num">13M+</span>
+                    <span class="stat-label">Stores</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-num">&lt;100ms</span>
+                    <span class="stat-label">Response</span>
+                </div>
+            </div>
+
+            <button class="enter-btn" id="enterBtn">
+                Enter App <span class="btn-arrow">→</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <script>
+        /* ════════════════════════════════════
+           1. Typewriter
+        ════════════════════════════════════ */
+        const TITLE = 'Hyper-Local Supply\nChain Optimizer';
+        const target = document.getElementById('typeTarget');
+        const cursor = document.getElementById('cursor');
+        let i = 0;
+
+        function type() {
+            if (i < TITLE.length) {
+                const ch = TITLE[i];
+                if (ch === '\n') {
+                    target.appendChild(document.createElement('br'));
+                } else {
+                    target.appendChild(document.createTextNode(ch));
+                }
+                i++;
+                // Highlight "Optimizer" at the end
+                setTimeout(type, i < 20 ? 55 : 38);
+            } else {
+                // Done typing — hide cursor after short delay
+                setTimeout(() => { cursor.style.display = 'none'; }, 900);
+                // Make the last word neon
+                const raw = target.innerHTML;
+                target.innerHTML = raw.replace('Optimizer',
+                    '<span class="accent">Optimizer</span>');
+            }
+        }
+
+        setTimeout(type, 600);
+
+        /* ════════════════════════════════════
+           2. Floating food items
+        ════════════════════════════════════ */
+        const FOODS = ['🥛', '🍞', '🥚', '🍚', '🛢️', '🧃', '🥔', '🍅', '🧂', '🍪', '🧅', '🫙'];
+        const ANIMS = ['floatUp', 'floatRight', 'floatDiag', 'floatWave'];
+        const container = document.getElementById('floaters');
+
+        function rnd(min, max) { return Math.random() * (max - min) + min; }
+
+        FOODS.forEach((emoji, idx) => {
+            const el = document.createElement('div');
+            el.className = 'floater';
+            el.textContent = emoji;
+
+            const size = rnd(22, 52);
+            const left = rnd(2, 95);
+            const top = rnd(3, 92);
+            const dur = rnd(5, 12);
+            const delay = rnd(0, 6);
+            const blur = rnd(0, 4);
+            const opacity = rnd(0.08, 0.28);
+            const anim = ANIMS[idx % ANIMS.length];
+
+            el.style.cssText = `
+        font-size: ${size}px;
+        left: ${left}%;
+        top: ${top}%;
+        opacity: ${opacity};
+        filter: blur(${blur}px);
+        animation-name: ${anim};
+        animation-duration: ${dur}s;
+        animation-delay: -${delay}s;
+        --parallax-x: ${rnd(-1, 1).toFixed(2)};
+        --parallax-y: ${rnd(-1, 1).toFixed(2)};
+      `;
+            el.dataset.px = rnd(-1, 1).toFixed(2);
+            el.dataset.py = rnd(-1, 1).toFixed(2);
+            container.appendChild(el);
+        });
+
+        /* ════════════════════════════════════
+           3. Parallax on mouse move
+        ════════════════════════════════════ */
+        const floaters = document.querySelectorAll('.floater');
+        const card = document.getElementById('glassCard');
+
+        document.addEventListener('mousemove', e => {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const dx = (e.clientX - cx) / cx;   // -1 to 1
+            const dy = (e.clientY - cy) / cy;
+
+            floaters.forEach(f => {
+                const px = parseFloat(f.dataset.px);
+                const py = parseFloat(f.dataset.py);
+                f.style.transform +=
+                    ` translate(${dx * 28 * px}px, ${dy * 28 * py}px)`;
+            });
+
+            // Subtle card tilt
+            const tiltX = (dy * 4).toFixed(1);
+            const tiltY = (dx * -4).toFixed(1);
+            card.style.transform = `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+        });
+
+        /* ════════════════════════════════════
+           4. Particle canvas
+        ════════════════════════════════════ */
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.r = Math.random() * 1.5 + 0.3;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = -Math.random() * 0.6 - 0.2;
+                this.a = Math.random() * 0.35 + 0.05;
+                this.life = Math.random() * 200 + 100;
+                this.age = 0;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.age++;
+                if (this.age > this.life || this.y < 0) this.reset();
+            }
+            draw() {
+                const alpha = this.a * (1 - this.age / this.life);
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, ${80 + Math.random() * 60 | 0}, 0, ${alpha})`;
+                ctx.fill();
+            }
+        }
+
+        for (let p = 0; p < 80; p++) particles.push(new Particle());
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        /* ════════════════════════════════════
+           5. Progress bar + Transition
+        ════════════════════════════════════ */
+        const bar = document.getElementById('progressBar');
+        // Start progress bar after a tick so CSS transition triggers
+        setTimeout(() => { bar.style.width = '100%'; }, 50);
+
+        function goToLogin() {
+            document.body.classList.add('page-exit');
+            setTimeout(() => { window.location.href = 'login.html'; }, 620);
+        }
+
+        // Button click
+        document.getElementById('enterBtn').addEventListener('click', goToLogin);
+
+        // Auto-redirect after progress bar completes (3 s) + small buffer
+        const autoTimer = setTimeout(goToLogin, 8000); // 8 s auto-redirect (generous for demo)
+
+        // Click anywhere on bg also goes to login
+        document.getElementById('hero').addEventListener('click', e => {
+            if (e.target === document.getElementById('hero')) {
+                clearTimeout(autoTimer);
+                goToLogin();
+            }
+        });
+    </script>
+</body>
+
+</html>
